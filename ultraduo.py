@@ -1,17 +1,17 @@
 
 class Charge:
-    def __init__(self):
-        input = ''
-        battery = 0
-        chargecount = 0
-        inputvoltage = 0
-        status = ''
-        voltage = 0
-        current = 0
-        capacity = 0
-        temperature = 0
-        v2 = 0
-        cells = [0, 0, 0, 0, 0, 0, 0]
+    #def __init__(self):
+    input = ''
+    battery = 0
+    chargecount = 0
+    inputvoltage = 0
+    status = ''
+    voltage = 0
+    current = 0
+    capacity = 0
+    temperature = 0
+    v2 = 0
+    cells = [0, 0, 0, 0, 0, 0, 0]
 
     def print(self):
         s = str(self.battery) + ","
@@ -50,9 +50,9 @@ class Charge:
     
 
 class UltraDuo:
-    def __init__(self):
-        ch1 = Charge()
-        ch2 = Charge()
+    # def __init__(self):
+    ch1 = Charge()
+    ch2 = Charge()
 
     def parse(self,line):
         v = [ line[0:4] , line[4:68] , line[68:132], line[132:136] ]

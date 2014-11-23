@@ -4,40 +4,45 @@ import threading
 import time
 import settings
 
-def make_request(bat):
+def make_request(channel):
     req = "/charger.php"
-    req += "?id=CDW" + str(bat)
+    req += "?id=CDW" + str(channel.battery)
     req += "&status=charging"
-    req += "&voltage=12550"
-    req += "&current=2540"
-    req += "&temperature=216"
-    req += "&volt_cell_1=4123"
-    req += "&volt_cell_2=4121"
-    req += "&volt_cell_3=4125"
-    req += "&volt_cell_4=0"
-    req += "&volt_cell_5=0"
-    req += "&volt_cell_6=0"
-    req += "&volt_cell_7=0"
-    req += "&volt_cell_8=0"
+    # discharging, charging en ready
+    req += "&voltage=" +str(channel.voltage)
+    req += "&current=" + str(channel.current)
+    req += "&temperature="+ str(channel.temperature)
+    for i in range(0,7):
+        req += "&volt_cell_" + str(i+1) + "=" + str(channel.cells[i])
     return req
     
 
 def upload_thread():
-
+    lock = threading.Lock()
     while True:
+        req1 = ''
+        req2 = ''
+        lock.acquire()
+        try:
+            u = ultraduo.ultraduo
+            req1 = make_request(u.ch1)
+            req2 = make_request(u.ch2)
+        finally:
+            lock.release()
 
-        req = make_request(5)
-        print(req)
-        conn = http.client.HTTPConnection(settings.MY_PRIVATE_SERVER, 80,timeout=10)
-        conn.request("GET", req)
-        r1 = conn.getresponse()
-        print(r1.status, r1.reason)
-        req = make_request(10)
-        print(req)
-        conn = http.client.HTTPConnection('log.mavlab.info', 80,timeout=10)
-        conn.request("GET", req)
-        r1 = conn.getresponse()
-        print(r1.status, r1.reason)
+        try:
+            print(req1)
+            conn = http.client.HTTPConnection(settings.MY_PRIVATE_SERVER, 80,timeout=10)
+            conn.request("GET", req1)
+            r1 = conn.getresponse()
+            print(r1.status, r1.reason)
+            print(req2)
+            conn = http.client.HTTPConnection('log.mavlab.info', 80,timeout=10)
+            conn.request("GET", req2)
+            r1 = conn.getresponse()
+            print(r1.status, r1.reason)
+        except:
+            print("Upload failed")    
 
         time.sleep(5)
 
