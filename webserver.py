@@ -15,7 +15,12 @@ def make(channel):
     s = s + "<tr><td><b>Status:</b></td><td>" + channel.status + " [<b>" + channel.decode_status() + "</b>]</td></tr>\n"
     s = s + "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
     s = s + "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
-    s = s + "<tr><td><b>Temperature:</b></td><td>" + str(channel.temperature) + " decidegrees C</td></tr>\n"
+    c1 = ''
+    c2 = ''
+    if (channel.temperature > 300):
+        c1 = '<font style=\"BACKGROUND-COLOR: red\"><b>'
+        c2 = '</b></font>'
+    s = s + "<tr><td><b>Temperature:</b></td><td>" + c1 + str(channel.temperature) + c2 + " decidegrees C</td></tr>\n"
     s = s + "<tr><td><b>Unknown:</b></td><td>" + str(channel.v2) + " </td></tr>\n"
     s = s + "<tr><td><b>Cells:</b></td><td>"
     for i in range(0,7):
