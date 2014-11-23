@@ -7,6 +7,7 @@ import threading
 def serial_server(port):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     p = open('logfile_' + timestr + '.csv', 'w')
+    f = open('raw_' + timestr + '.hex', 'w')
     p.write(ultraduo.Charge().header()+ " " + ultraduo.Charge().header()+"\n")
     lock = threading.Lock()
     try:
@@ -16,6 +17,7 @@ def serial_server(port):
             s = ser.read(64)
             s = s.decode('utf-8')
             s = s.replace('\x0c','')
+            f.write(s)
             line = line + s
             if (s.find('\r') > 0):
                 lock.acquire()
@@ -27,11 +29,12 @@ def serial_server(port):
                 print(line)
                 line = ''
                 # print(ultraduo.ultraduo.ch1.print())
-        p.close()
 
     except KeyboardInterrupt:
         print ('^C received, closing serial port')
         ser.close()
+        p.close()
+        f.close()
         
 
 if __name__ == '__main__':
