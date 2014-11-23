@@ -5,19 +5,20 @@ import time
 import settings
 
 def make_request(bat):
-    req = "/battery.php"
+    req = "/charger.php"
     req += "?id=CDW" + str(bat)
-    req += "&voltage=12570"
+    req += "&status=charging"
+    req += "&voltage=12550"
     req += "&current=2540"
     req += "&temperature=216"
-    req += "& volt_cell_1=4123"
-    req += "& volt_cell_2=4121"
-    req += "& volt_cell_3=4125"
-    req += "& volt_cell_4=0"
-    req += "& volt_cell_5=0"
-    req += "& volt_cell_6=0"
-    req += "& volt_cell_7=0"
-    req += "& volt_cell_8=0"
+    req += "&volt_cell_1=4123"
+    req += "&volt_cell_2=4121"
+    req += "&volt_cell_3=4125"
+    req += "&volt_cell_4=0"
+    req += "&volt_cell_5=0"
+    req += "&volt_cell_6=0"
+    req += "&volt_cell_7=0"
+    req += "&volt_cell_8=0"
     return req
     
 

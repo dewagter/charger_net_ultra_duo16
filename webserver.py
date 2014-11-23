@@ -15,8 +15,8 @@ def make(channel):
     s = s + "<tr><td><b>Status:</b></td><td>" + channel.status + "</td></tr>\n"
     s = s + "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
     s = s + "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
-    s = s + "<tr><td><b>Resistance:</b></td><td>" + str(channel.resistance) + " mOhm</td></tr>\n"
-    s = s + "<tr><td><b>Temperature:</b></td><td>" + str(channel.v2) + " C</td></tr>\n"
+    s = s + "<tr><td><b>Temperature:</b></td><td>" + str(channel.temperature) + " decidegrees C</td></tr>\n"
+    s = s + "<tr><td><b>Unknown:</b></td><td>" + str(channel.v2) + " </td></tr>\n"
     s = s + "<tr><td><b>Cells:</b></td><td>"
     for i in range(0,7):
         s = s + str(channel.cells[i]) + ","

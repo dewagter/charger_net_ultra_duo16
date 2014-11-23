@@ -1,16 +1,17 @@
 
 class Charge:
-    input = ''
-    battery = 0
-    chargecount = 0
-    inputvoltage = 0
-    status = ''
-    voltage = 0
-    current = 0
-    capacity = 0
-    resistance = 0
-    v2 = 0
-    cells = [0, 0, 0, 0, 0, 0, 0]
+    def __init__(self):
+        input = ''
+        battery = 0
+        chargecount = 0
+        inputvoltage = 0
+        status = ''
+        voltage = 0
+        current = 0
+        capacity = 0
+        temperature = 0
+        v2 = 0
+        cells = [0, 0, 0, 0, 0, 0, 0]
 
     def print(self):
         s = str(self.battery) + ","
@@ -20,13 +21,13 @@ class Charge:
         s = s + str(self.voltage) + ","
         s = s + str(self.current) + ","
         s = s + str(self.capacity) + ","
-        s = s + str(self.resistance) + ","
+        s = s + str(self.temperature) + ","
         for i in range(0,7):
             s = s +( str(self.cells[i]) + ",")
         return s
 
     def header(self):
-        return "battery,chargecount,inputvoltage,status,voltage,current,capacity,resistance,cell1,cell2,cell3,cell4,cell5,cell6,cell7,"
+        return "battery,chargecount,inputvoltage,status,voltage,current,capacity,temperature,cell1,cell2,cell3,cell4,cell5,cell6,cell7,"
     
     def parse(self, s):
         if (len(s) == 64):
@@ -40,7 +41,7 @@ class Charge:
             self.voltage = int(s[16:20],16)
             self.current = int(s[20:24],16)
             self.capacity = int(s[24:28],16)
-            self.resistance = int(s[28:32],16)
+            self.temperature = int(s[28:32],16)
             self.v2 = s[32:36]
             nr = 0
             for i in [36,40,44,48,52,56,60]:
@@ -49,10 +50,9 @@ class Charge:
     
 
 class UltraDuo:
-    ch1 = Charge()
-    ch2 = Charge()
-
-    #def __init__(self, line):
+    def __init__(self):
+        ch1 = Charge()
+        ch2 = Charge()
 
     def parse(self,line):
         v = [ line[0:4] , line[4:68] , line[68:132], line[132:136] ]
