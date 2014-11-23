@@ -5,13 +5,48 @@ class Charge:
     battery = 0
     chargecount = 0
     inputvoltage = 0
-    status = ''
+    status = '000000'
     voltage = 0
     current = 0
     capacity = 0
     temperature = 0
     v2 = 0
     cells = [0, 0, 0, 0, 0, 0, 0]
+
+#000000	-> nothing
+#010800	-> charging CC/CV
+#010B00	-> charging FAST
+#010700	-> charging Store 3.90
+#010900	-> charging CV Link
+#050200	-> ready
+#050400	-> overtemperature
+#070000	-> pure balancing
+#020200	-> discharge normal
+#020300	-> discharge linear
+#020700 -> discharge Store 3.90
+#060300	-> error battery disconnected
+#061100	-> error balancer disconnected
+
+
+    def decode_status(self):
+        ret = '<decode-fail>'
+        if (len(self.status) == 6):
+            s = self.status[1]
+            #ret += str(bin(int(self.status[1],16)))
+            #ret += str(bin(int(self.status[3],16)))
+            if (s == '1'):
+                ret = 'charging'
+            elif (s == '2'):
+                ret = 'discharging'
+            elif (s == '6'):
+                ret = 'error'
+            elif (s == '7'):
+                ret = 'balancing'
+            elif ((s == '0') or (s == '5')):
+                ret = 'ready'
+            else:
+                ret = 'unknown'
+        return ret
 
     def print(self):
         s = str(self.battery) + ","

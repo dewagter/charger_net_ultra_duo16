@@ -7,7 +7,7 @@ import settings
 def make_request(channel):
     req = "/charger.php"
     req += "?id=CDW" + str(channel.battery)
-    req += "&status=charging"
+    req += "&status=" + channel.decode_status()
     # discharging, charging en ready
     req += "&voltage=" +str(channel.voltage)
     req += "&current=" + str(channel.current)
