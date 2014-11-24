@@ -1,32 +1,32 @@
 
 class Charge:
-    #def __init__(self):
-    input = ''
-    battery = 0
-    chargecount = 0
-    inputvoltage = 0
-    status = '000000'
-    voltage = 0
-    current = 0
-    capacity = 0
-    temperature = 0
-    v2 = 0
-    cells = [0, 0, 0, 0, 0, 0, 0]
+    """Store the charging state of a single battery"""
+    def __init__(self):
+        self.input = ''
+        self.battery = 0
+        self.chargecount = 0
+        self.inputvoltage = 0
+        self.status = '000000'
+        self.voltage = 0
+        self.current = 0
+        self.capacity = 0
+        self.temperature = 0
+        self.v2 = 0
+        self.cells = [0, 0, 0, 0, 0, 0, 0]
 
-#000000	-> nothing
-#010800	-> charging CC/CV
-#010B00	-> charging FAST
-#010700	-> charging Store 3.90
-#010900	-> charging CV Link
-#050200	-> ready
-#050400	-> overtemperature
-#070000	-> pure balancing
-#020200	-> discharge normal
-#020300	-> discharge linear
-#020700 -> discharge Store 3.90
-#060300	-> error battery disconnected
-#061100	-> error balancer disconnected
-
+    #000000	-> nothing
+    #010800	-> charging CC/CV
+    #010B00	-> charging FAST
+    #010700	-> charging Store 3.90
+    #010900	-> charging CV Link
+    #050200	-> ready
+    #050400	-> overtemperature
+    #070000	-> pure balancing
+    #020200	-> discharge normal
+    #020300	-> discharge linear
+    #020700 -> discharge Store 3.90
+    #060300	-> error battery disconnected
+    #061100	-> error balancer disconnected
 
     def decode_status(self):
         ret = '<decode-fail>'
@@ -52,7 +52,7 @@ class Charge:
         s = str(self.battery) + ","
         s = s + str(self.chargecount) + ","
         s = s + str(self.inputvoltage) + ","
-        s = s + "\'" + self.status + ","
+        s = s + "\'" + self.decode_status() + " [" +self.status + "],"
         s = s + str(self.voltage) + ","
         s = s + str(self.current) + ","
         s = s + str(self.capacity) + ","
@@ -85,14 +85,20 @@ class Charge:
     
 
 class UltraDuo:
-    # def __init__(self):
-    ch1 = Charge()
-    ch2 = Charge()
+    def __init__(self):
+        self.ch1 = Charge()
+        self.ch2 = Charge()
 
     def parse(self,line):
-        v = [ line[0:4] , line[4:68] , line[68:132], line[132:136] ]
-        self.ch1.parse(v[1])
-        self.ch2.parse(v[2])
+        if ((len(line) >= 136) and (len(line) <=138)):
+            if (line[0:4] == '8205'):
+                v = [ line[0:4] , line[4:68] , line[68:132], line[132:136] ]
+                self.ch1.parse(v[1])
+                self.ch2.parse(v[2])
+            else:
+                print("Parsed Bad Line (header error): " + line)
+        else:
+            print("Parsed Bad Line (size error): " + line)
 
 ultraduo = UltraDuo()
 
