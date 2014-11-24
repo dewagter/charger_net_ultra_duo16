@@ -1,3 +1,4 @@
+#!/usr/bin/python
 
 import charger
 
@@ -44,7 +45,7 @@ class UltraDuoChannel(charger.Channel):
             # store raw
             self.input = s
             # parse content
-            self.battery = int(s[0:2],16)
+            self.battery = 'CDW' + str(int(s[0:2],16))
             self.chargecount = int(s[2:6],16)
             self.inputvoltage = int(s[6:10],16)
             self.status = self.decode_status(s[10:16])
@@ -63,9 +64,12 @@ class UltraDuoChannel(charger.Channel):
 class UltraDuo(charger.Charger):
     def __init__(self):
         self.channels = []
+        self.readsize = 64
+        self.baudrate = 9600
         self.name = 'Graupner Ultra Duo Plus 60'
         self.channels.append( UltraDuoChannel() )
         self.channels.append( UltraDuoChannel() )
+        self.line = ''
 
     def parse(self,line):
         if ((len(line) >= 136) and (len(line) <=138)):
@@ -78,20 +82,17 @@ class UltraDuo(charger.Charger):
         else:
             print("Parsed Bad Line (size error): " + line)
 
-    def process_serial_data(self,feed):
+    def process_serial_data(self,s):
+        updated = 0
         s = s.decode('utf-8')
         s = s.replace('\x0c','')
-        f.write(s)
-        line = line + s
+        self.line = self.line + s
         if (s.find('\r') > 0):
-            lock.acquire()
-            try:
-                ultraduo.ultraduo.parse(line)
-                p.write(ultraduo.ultraduo.ch1.print() + " " + ultraduo.ultraduo.ch2.print() + "\n")
-            finally:
-                lock.release()
-            print(line)
-            line = ''
+            updated = 1
+            self.parse(self.line)
+            print(self.line)
+            self.line = ''
+        return updated
         
 
 if __name__ == '__main__':

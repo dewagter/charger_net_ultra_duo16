@@ -1,14 +1,14 @@
+#!/usr/bin/python
+
 import http.client
-import ultraduo
 import threading
 import time
-import settings
 
 def make_request(channel):
     req = "/charger.php"
-    req += "?id=CDW" + str(channel.battery)
-    req += "&status=" + channel.decode_status()
-    # discharging, charging en ready
+    req += "?id=" + channel.battery
+    #req += "&time="
+    req += "&status=" + channel.status     # discharging, charging en ready
     req += "&voltage=" +str(channel.voltage)
     req += "&current=" + str(channel.current)
     req += "&temperature="+ str(channel.temperature)
@@ -17,42 +17,34 @@ def make_request(channel):
     return req
     
 
-def upload_thread():
+def upload_thread(url, mycharger):
     lock = threading.Lock()
     while True:
-        req1 = ''
-        req2 = ''
+        req = []
         lock.acquire()
         try:
-            u = ultraduo.ultraduo
-            # if battery is connected
-            if (u.ch1.cells[0] > 0):
-                req1 = make_request(u.ch1)
-            # if battery is connected
-            if (u.ch2.cells[0] > 0):
-                req2 = make_request(u.ch2)
+            for ch in mycharger.channels:
+                # if battery is connected
+                if (ch.cells[0] > 0):
+                    req.append( make_request(ch) )
         finally:
             lock.release()
 
-        try:
-            if (len(req1) > 0):
-                print(req1)
-                conn = http.client.HTTPConnection(settings.MY_PRIVATE_SERVER, 80,timeout=10)
-                conn.request("GET", req1)
+        for r in req:
+            try:
+                print(r)
+                conn = http.client.HTTPConnection(url, 80,timeout=10)
+                conn.request("GET", r)
                 r1 = conn.getresponse()
-                print(r1.status, r1.reason)
-            if (len(req2) > 0):
-                print(req2)
-                conn = http.client.HTTPConnection('log.mavlab.info', 80,timeout=10)
-                conn.request("GET", req2)
-                r1 = conn.getresponse()
-                print(r1.status, r1.reason)
-        except:
-            print("Upload failed")    
+                print(url,r1.status, r1.reason)
+            except:
+                print("Upload failed")    
 
         time.sleep(5)
 
         
-
+import ultraduo
+import settings
 if __name__ == '__main__':
-    upload_thread()
+    mycharger = ultraduo.UltraDuo()
+    upload_thread(settings.MY_PRIVATE_SERVER, mycharger)

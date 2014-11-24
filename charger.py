@@ -5,7 +5,7 @@ class Channel():
     """Store the charging state of a single battery"""
     def __init__(self):
         self.input = ''
-        self.battery = 0
+        self.battery = 'none'
         self.chargecount = 0
         self.inputvoltage = 0
         self.status = 'unknown'
@@ -17,7 +17,7 @@ class Channel():
         self.extra = {}
 
     def print(self):
-        s = str(self.battery) + ","
+        s = self.battery + ","
         s = s + str(self.chargecount) + ","
         s = s + str(self.inputvoltage) + ","
         s = s + "\'" + self.status + ","
@@ -43,4 +43,5 @@ class Charger():
 
     def process_serial_data(self,feed):
         self.parse(feed)
+        return 0
 

@@ -3,8 +3,6 @@
 import threading
 import http.server
 import socketserver
-import ultraduo
-import imaxb6
 
 PORT_NUMBER = 8000
 
@@ -92,7 +90,16 @@ def start_webserver(mycharger):
         server.socket.close()
 
 
+import ultraduo
+import imaxb6
+import charger
 
 if __name__ == '__main__':
     #start_webserver(ultraduo.UltraDuo())
-    start_webserver(imaxb6.ImaxB6())
+    #start_webserver(imaxb6.ImaxB6())
+    c = charger.Charger()
+    c.channels.append(charger.Channel())
+    c.channels.append(charger.Channel())
+    c.channels.append(charger.Channel())
+    c.channels.append(charger.Channel())
+    start_webserver(c)

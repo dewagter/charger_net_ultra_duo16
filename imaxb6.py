@@ -1,7 +1,6 @@
-import time
-import serial
+#!/usr/bin/python
+
 import charger
-import threading
 
 def decimal(data, offset):
     return data[offset+1] * 1000 + data[offset+2] * 10;
@@ -78,6 +77,7 @@ class ImaxB6(charger.Charger):
         self.channels[0].decode_array(line)
 
     def process_serial_data(self,feed):
+        updated = 0
         for b in feed:
             self.line.append(b)
             if (b == ord('{')):
@@ -89,50 +89,17 @@ class ImaxB6(charger.Charger):
                     if (self.line[0] == ord('{')):
                         #print(line)
                         self.parse(self.line)
+                        updated = 1
                     else:
                         print("Bad start character")
                 else:
                     print("Bad line length: " + str(len(self.line)))
+        return updated
         
 
 
-    
-    
 
-
-
-
-
-def serial_server(port):
-
-    mycharger = ImaxB6()
-    
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    #p = open('logfile_' + timestr + '.csv', 'w')
-    f = open('raw_' + timestr + '.hex', 'w')
-    #p.write(ultraduo.Charge().header()+ " " + ultraduo.Charge().header()+"\n")
-    lock = threading.Lock()
-    try:
-        ser=serial.Serial(port, mycharger.baudrate, timeout=0.05)
-        while (1):
-            s = ser.read(mycharger.readsize)
-            mycharger.process_serial_data(s)
-            f.write(str(s))
-            #line = line + s
-            #if (s.find('\r') > 0):
-            #    lock.acquire()
-            #    try:
-                    #ultraduo.ultraduo.parse(line)
-                    #p.write(ultraduo.ultraduo.ch1.print() + " " + ultraduo.ultraduo.ch2.print() + "\n")
-            #    finally:
-            #        lock.release()
-
-    except KeyboardInterrupt:
-        print ('^C received, closing serial port')
-        ser.close()
-        #p.close()
-        f.close()
-        
+import myserial
 
 if __name__ == '__main__':
-    serial_server('COM167')
+    myserial.serial_server('COM167', ImaxB6())

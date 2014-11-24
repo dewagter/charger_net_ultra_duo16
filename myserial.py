@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import time
 import serial
 import charger
@@ -15,8 +17,23 @@ def serial_server(port, mycharger):
         line = ''
         while (1):
             s = ser.read(mycharger.readsize)
-            mycharger.process_serial_data(s)
-                # print(ultraduo.ultraduo.ch1.print())
+            f.write(str(s))
+            
+            log = ''
+            updated = 0
+            lock.acquire()
+            try:
+                updated = mycharger.process_serial_data(s)
+                if updated == 1:
+                    for c in mycharger.channels:
+                        log += c.print() + " "
+                    log += "\n"
+            finally:
+                lock.release()
+
+            if updated == 1:
+                p.write(log)
+                
 
     except KeyboardInterrupt:
         print ('^C received, closing serial port')
@@ -28,4 +45,7 @@ import imaxb6
 import ultraduo
 
 if __name__ == '__main__':
-    serial_server('COM167', imaxb6.ImaxB6())
+    #serial_server('COM167', imaxb6.ImaxB6())
+    serial_server('COM11', ultraduo.UltraDuo())
+
+
