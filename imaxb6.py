@@ -30,17 +30,20 @@ def imax_b6_decode(data):
     print(data)
     # Protocol reverse engineered by
     # Ref: http://blog.dest-unreach.be/2012/01/29/imax-b6-charger-protocol-reverse-engineered
+    sample['state']         = data[7+1]
+    sample['mode']          = data[22+1]
+    sample['active']        = data[23+1]
     sample['current']       = decimal(data, 32)
     sample['voltage']       = decimal(data, 34)
     sample['input_voltage'] = decimal(data, 40)
-    sample['charge']        = decimal(data, 42)
-    sample['minutes']       = data[70]
+    sample['charge']        = decimal(data, 42) / 10.0
     sample['cell1']         = decimal(data, 44)
     sample['cell2']         = decimal(data, 46)
     sample['cell3']         = decimal(data, 48)
     sample['cell4']         = decimal(data, 50)
     sample['cell5']         = decimal(data, 52)
     sample['cell6']         = decimal(data, 54)
+    sample['minutes']       = data[69+1]
     print(sample)
     return sample
     
