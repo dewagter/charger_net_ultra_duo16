@@ -26,7 +26,7 @@ def make(channel):
     stat = channel.decode_status()
     if (stat == 'ready'):
         stat = color(stat, 'green')
-    elif ((stat == 'charging') or (stat == 'discharging') or (stat = 'balancing')):
+    elif ((stat == 'charging') or (stat == 'discharging') or (stat == 'balancing')):
         stat = color(stat, 'yellow')
     else:
         stat = color(stat, 'red')
