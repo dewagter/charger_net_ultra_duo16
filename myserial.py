@@ -1,33 +1,21 @@
 import time
 import serial
-import ultraduo
+import charger
 import threading
 
 
-def serial_server(port):
+def serial_server(port, mycharger):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     p = open('logfile_' + timestr + '.csv', 'w')
     f = open('raw_' + timestr + '.hex', 'w')
-    p.write(ultraduo.Charge().header()+ " " + ultraduo.Charge().header()+"\n")
+    p.write(charger.Channel().header()+ " " + charger.Channel().header()+"\n")
     lock = threading.Lock()
     try:
-        ser=serial.Serial(port, 9600, timeout=0.05)
+        ser=serial.Serial(port, mycharger.baudrate, timeout=0.05)
         line = ''
         while (1):
-            s = ser.read(64)
-            s = s.decode('utf-8')
-            s = s.replace('\x0c','')
-            f.write(s)
-            line = line + s
-            if (s.find('\r') > 0):
-                lock.acquire()
-                try:
-                    ultraduo.ultraduo.parse(line)
-                    p.write(ultraduo.ultraduo.ch1.print() + " " + ultraduo.ultraduo.ch2.print() + "\n")
-                finally:
-                    lock.release()
-                print(line)
-                line = ''
+            s = ser.read(mycharger.readsize)
+            mycharger.process_serial_data(s)
                 # print(ultraduo.ultraduo.ch1.print())
 
     except KeyboardInterrupt:
@@ -36,6 +24,8 @@ def serial_server(port):
         p.close()
         f.close()
         
+import imaxb6
+import ultraduo
 
 if __name__ == '__main__':
-    serial_server('COM11')
+    serial_server('COM167', imaxb6.ImaxB6())

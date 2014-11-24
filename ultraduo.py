@@ -63,6 +63,7 @@ class UltraDuoChannel(charger.Channel):
 class UltraDuo(charger.Charger):
     def __init__(self):
         self.channels = []
+        self.name = 'Graupner Ultra Duo Plus 60'
         self.channels.append( UltraDuoChannel() )
         self.channels.append( UltraDuoChannel() )
 
@@ -77,7 +78,21 @@ class UltraDuo(charger.Charger):
         else:
             print("Parsed Bad Line (size error): " + line)
 
-mycharger = UltraDuo()
+    def process_serial_data(self,feed):
+        s = s.decode('utf-8')
+        s = s.replace('\x0c','')
+        f.write(s)
+        line = line + s
+        if (s.find('\r') > 0):
+            lock.acquire()
+            try:
+                ultraduo.ultraduo.parse(line)
+                p.write(ultraduo.ultraduo.ch1.print() + " " + ultraduo.ultraduo.ch2.print() + "\n")
+            finally:
+                lock.release()
+            print(line)
+            line = ''
+        
 
 if __name__ == '__main__':
     f = open('teraterm.log')
@@ -104,6 +119,7 @@ if __name__ == '__main__':
     #            line[132:]) # checksum?
     #f.close()
 
+    mycharger = UltraDuo()
     p = open('converted.csv', 'w')
     p.write(charger.Channel().header()+ " " + charger.Channel().header()+"\n")
     for line in lines:

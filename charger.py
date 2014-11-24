@@ -35,5 +35,12 @@ class Channel():
 
 class Charger():
     def __init__(self):
-        channels = []
+        self.channels = []
+        self.name = 'Generic Charger'
+
+    def parse(self, line):
+        self.channels = []
+
+    def process_serial_data(self,feed):
+        self.parse(feed)
 
