@@ -7,20 +7,33 @@ import ultraduo
 
 PORT_NUMBER = 8000
 
+
+def color(string, color):
+    ret = '<font style=\"BACKGROUND-COLOR: " + color + "\"><b>'
+    ret += string
+    ret += '</b></font>'
+
+def error(string, condition):
+    if (condition):
+        return color(string,'red')
+    return ret
+
 def make(channel):
     s = "<hr>\n<table>"
     s = s + "<tr><td><b>Battery:</b></td><td>" + str(channel.battery)  + " (" + str(channel.chargecount) + " cycles)</td></tr>\n"
     s = s + "<tr><td><b>InputVoltage:</b></td><td>" + str(channel.inputvoltage) + " mV</td></tr>\n"
-    s = s + "<tr><td><b>Voltage:</b></td><td>" + str(channel.voltage) + " mV</td></tr>\n"
-    s = s + "<tr><td><b>Status:</b></td><td>" + channel.status + " [<b>" + channel.decode_status() + "</b>]</td></tr>\n"
+    s = s + "<tr><td><b>Voltage:</b></td><td>" + str(float(channel.voltage)/1000.0) + " mV</td></tr>\n"
+    stat = channel.decode_status()
+    if (stat == 'ready'):
+        stat = color(stat, 'green')
+    elif ((stat == 'charging') or (stat == 'discharging') or (stat = 'balancing')):
+        stat = color(stat, 'yellow')
+    else:
+        stat = color(stat, 'red')
+    s = s + "<tr><td><b>Status:</b></td><td>" + channel.status + " [<b>" + stat + "</b>]</td></tr>\n"
     s = s + "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
     s = s + "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
-    c1 = ''
-    c2 = ''
-    if (channel.temperature > 300):
-        c1 = '<font style=\"BACKGROUND-COLOR: red\"><b>'
-        c2 = '</b></font>'
-    s = s + "<tr><td><b>Temperature:</b></td><td>" + c1 + str(channel.temperature) + c2 + " decidegrees C</td></tr>\n"
+    s = s + "<tr><td><b>Temperature:</b></td><td>" + error(str(float(channel.temperature)/10.0),channel.temperature > 300) + " degrees C</td></tr>\n"
     s = s + "<tr><td><b>Unknown:</b></td><td>" + str(channel.v2) + " </td></tr>\n"
     s = s + "<tr><td><b>Cells:</b></td><td>"
     for i in range(0,7):
