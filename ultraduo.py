@@ -1,18 +1,9 @@
 
-class Charge:
-    """Store the charging state of a single battery"""
-    def __init__(self):
-        self.input = ''
-        self.battery = 0
-        self.chargecount = 0
-        self.inputvoltage = 0
-        self.status = '000000'
-        self.voltage = 0
-        self.current = 0
-        self.capacity = 0
-        self.temperature = 0
-        self.v2 = 0
-        self.cells = [0, 0, 0, 0, 0, 0, 0]
+import charger
+
+
+class UltraDuoChannel(charger.Channel):
+    """Single Channel of Ultra Duo"""
 
     #000000	-> nothing
     #010800	-> charging CC/CV
@@ -24,14 +15,14 @@ class Charge:
     #070000	-> pure balancing
     #020200	-> discharge normal
     #020300	-> discharge linear
-    #020700 -> discharge Store 3.90
+    #020700     -> discharge Store 3.90
     #060300	-> error battery disconnected
     #061100	-> error balancer disconnected
 
-    def decode_status(self):
-        ret = '<decode-fail>'
-        if (len(self.status) == 6):
-            s = self.status[1]
+    def decode_status(self, status):
+        ret = 'parse-error'
+        if (len(status) == 6):
+            s = status[1]
             #ret += str(bin(int(self.status[1],16)))
             #ret += str(bin(int(self.status[3],16)))
             if (s == '1'):
@@ -47,22 +38,6 @@ class Charge:
             else:
                 ret = 'unknown'
         return ret
-
-    def print(self):
-        s = str(self.battery) + ","
-        s = s + str(self.chargecount) + ","
-        s = s + str(self.inputvoltage) + ","
-        s = s + "\'" + self.decode_status() + " [" +self.status + "],"
-        s = s + str(self.voltage) + ","
-        s = s + str(self.current) + ","
-        s = s + str(self.capacity) + ","
-        s = s + str(self.temperature) + ","
-        for i in range(0,7):
-            s = s +( str(self.cells[i]) + ",")
-        return s
-
-    def header(self):
-        return "battery,chargecount,inputvoltage,status,voltage,current,capacity,temperature,cell1,cell2,cell3,cell4,cell5,cell6,cell7,"
     
     def parse(self, s):
         if (len(s) == 64):
@@ -72,35 +47,37 @@ class Charge:
             self.battery = int(s[0:2],16)
             self.chargecount = int(s[2:6],16)
             self.inputvoltage = int(s[6:10],16)
-            self.status = s[10:16]
+            self.status = self.decode_status(s[10:16])
             self.voltage = int(s[16:20],16)
             self.current = int(s[20:24],16)
             self.capacity = int(s[24:28],16)
             self.temperature = int(s[28:32],16)
-            self.v2 = s[32:36]
+            self.extra['unknown'] = s[32:36]
+            self.extra['status'] = s[10:16]
             nr = 0
             for i in [36,40,44,48,52,56,60]:
                 self.cells[nr] = int(s[i:i+4] , 16)
                 nr = nr + 1
     
 
-class UltraDuo:
+class UltraDuo(charger.Charger):
     def __init__(self):
-        self.ch1 = Charge()
-        self.ch2 = Charge()
+        self.channels = []
+        self.channels.append( UltraDuoChannel() )
+        self.channels.append( UltraDuoChannel() )
 
     def parse(self,line):
         if ((len(line) >= 136) and (len(line) <=138)):
             if (line[0:4] == '8205'):
                 v = [ line[0:4] , line[4:68] , line[68:132], line[132:136] ]
-                self.ch1.parse(v[1])
-                self.ch2.parse(v[2])
+                self.channels[0].parse(v[1])
+                self.channels[1].parse(v[2])
             else:
                 print("Parsed Bad Line (header error): " + line)
         else:
             print("Parsed Bad Line (size error): " + line)
 
-ultraduo = UltraDuo()
+mycharger = UltraDuo()
 
 if __name__ == '__main__':
     f = open('teraterm.log')
@@ -128,8 +105,8 @@ if __name__ == '__main__':
     #f.close()
 
     p = open('converted.csv', 'w')
-    p.write(Charge().header()+ " " + Charge().header()+"\n")
+    p.write(charger.Channel().header()+ " " + charger.Channel().header()+"\n")
     for line in lines:
-        ultraduo.parse(line)
-        p.write(ultraduo.ch1.print() + " " + ultraduo.ch2.print() + "\n")
+        mycharger.parse(line)
+        p.write(mycharger.channels[0].print() + " " + mycharger.channels[1].print() + "\n")
     p.close()
