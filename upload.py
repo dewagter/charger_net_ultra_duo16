@@ -25,22 +25,28 @@ def upload_thread():
         lock.acquire()
         try:
             u = ultraduo.ultraduo
-            req1 = make_request(u.ch1)
-            req2 = make_request(u.ch2)
+            # if battery is connected
+            if (u.ch1.cells[0] > 0):
+                req1 = make_request(u.ch1)
+            # if battery is connected
+            if (u.ch2.cells[0] > 0):
+                req2 = make_request(u.ch2)
         finally:
             lock.release()
 
         try:
-            print(req1)
-            conn = http.client.HTTPConnection(settings.MY_PRIVATE_SERVER, 80,timeout=10)
-            conn.request("GET", req1)
-            r1 = conn.getresponse()
-            print(r1.status, r1.reason)
-            print(req2)
-            conn = http.client.HTTPConnection('log.mavlab.info', 80,timeout=10)
-            conn.request("GET", req2)
-            r1 = conn.getresponse()
-            print(r1.status, r1.reason)
+            if (len(req1) > 0):
+                print(req1)
+                conn = http.client.HTTPConnection(settings.MY_PRIVATE_SERVER, 80,timeout=10)
+                conn.request("GET", req1)
+                r1 = conn.getresponse()
+                print(r1.status, r1.reason)
+            if (len(req2) > 0):
+                print(req2)
+                conn = http.client.HTTPConnection('log.mavlab.info', 80,timeout=10)
+                conn.request("GET", req2)
+                r1 = conn.getresponse()
+                print(r1.status, r1.reason)
         except:
             print("Upload failed")    
 
