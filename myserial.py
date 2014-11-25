@@ -9,7 +9,7 @@ import threading
 def serial_server(port, mycharger):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     p = open('logfile_' + timestr + '.csv', 'w')
-    f = open('raw_' + timestr + '.hex', 'w')
+    f = open('raw_' + timestr + '.bin', 'w+b')
     p.write(charger.Channel().header()+ " " + charger.Channel().header()+"\n")
     lock = threading.Lock()
     try:
@@ -17,7 +17,7 @@ def serial_server(port, mycharger):
         line = ''
         while (1):
             s = ser.read(mycharger.readsize)
-            f.write(str(s))
+            f.write(s)
             
             log = ''
             updated = 0
