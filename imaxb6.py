@@ -99,7 +99,7 @@ class ImaxB6(charger.Charger):
 
 
 
-import myserial
+import seriallog
 
 if __name__ == '__main__':
-    myserial.serial_server('COM167', ImaxB6())
+    seriallog.serial_server('COM167', ImaxB6())

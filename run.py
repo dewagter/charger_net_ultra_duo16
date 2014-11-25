@@ -4,7 +4,7 @@ import _thread
 import time
 
 import webserver
-import myserial
+import seriallog
 import upload
 import settings
 
@@ -28,8 +28,8 @@ mycharger = c2
 url = settings.MY_PRIVATE_SERVER
 
 #try:
-#_thread.start_new_thread( myserial.serial_server, ('COM167', mycharger, ) )
-_thread.start_new_thread( myserial.serial_server, ('COM11', mycharger, ) )
+#_thread.start_new_thread( seriallog.serial_server, ('COM167', mycharger, ) )
+_thread.start_new_thread( seriallog.serial_server, ('COM11', mycharger, ) )
 _thread.start_new_thread( upload.upload_thread, (url, mycharger))
 webserver.start_webserver(mycharger)
 #except:
