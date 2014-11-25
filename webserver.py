@@ -4,6 +4,8 @@ import threading
 import http.server
 import socketserver
 
+import beep
+
 PORT_NUMBER = 8000
 
 
@@ -18,7 +20,7 @@ def error(string, condition):
         return color(string,'red')
     return string
 
-def make(channel):
+def make(channel, haserror):
     s = "<hr>\n<table>"
     s = s + "<tr><td><b>Battery:</b></td><td>" + str(channel.battery)  + " (" + str(channel.chargecount) + " cycles)</td></tr>\n"
     s = s + "<tr><td><b>InputVoltage:</b></td><td>" + str(float(channel.inputvoltage)/1000.0) + " V</td></tr>\n"
@@ -26,10 +28,12 @@ def make(channel):
     stat = channel.status
     if (stat == 'ready'):
         stat = color(stat, 'green')
+        # haserror[0] = 1
     elif ((stat == 'charging') or (stat == 'discharging') or (stat == 'balancing')):
         stat = color(stat, 'yellow')
     else:
         stat = color(stat, 'red')
+        haserror[0] = 1
     s = s + "<tr><td><b>Status:</b></td><td><b>" + stat + "</b></td></tr>\n"
     s = s + "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
     s = s + "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
@@ -63,11 +67,21 @@ class myHandler(http.server.BaseHTTPRequestHandler):
         self.lock.acquire()
         u = self.charger
         try:
-            s = "<html><head><title>" + u.name + "</title><meta http-equiv=\"refresh\" content=\"1\" /></head>"
-            s = s + "<body><h1>" + u.name + "</h1>"
+            # First make body and check for errors
+            haserror = [ 0 ]
+            s = "<body>\n<h1>" + u.name + "</h1>\n"
             for c in u.channels:
-                s = s + make(c)
-            s = s + "<hr></body></html>"
+                s += make(c, haserror)
+            s += "<hr>\n</body>\n</html>"
+
+            # Then add header with sound if error
+            h = "<html>\n\t<head>\n\t\t<title>" + u.name + "</title>\n"
+            h += "\t\t<meta http-equiv=\"refresh\" content=\"1\" />\n"
+            if (haserror[0] == 1):
+                h += beep.beep()
+            h += "\t</head>\n"
+            s = h + s
+            
         finally:
             self.lock.release()
         self.wfile.write(bytes(s, "utf-8"))
