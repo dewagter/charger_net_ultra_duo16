@@ -20,6 +20,11 @@ Parsing Graupner logfiles:
 -------------------------
  
 Run '''ultraduo.py''' as standalone parses a file called '''teraterm.log'''
+
+Status Server:
+-------------
+
+![Watch face](https://raw.githubusercontent.com/dewagter/charger_net_ultra_duo16/master/img/imaxb6.png "Screenshot")
  
  
  
