@@ -8,11 +8,13 @@ class Tag():
 tag = Tag()
 
 def nfc_server():
-
+    mifare = nxppy.Mifare()
     while True:
-        uid=nxppy.read_mifare()
-        if uid is not None:
+        uid=mifare.select()
+        if uid is None:
             break
         tag.id = uid
         tag.new = 1
-        print uid
+        print(uid)
+
+nfc_server()
