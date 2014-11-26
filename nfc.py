@@ -10,11 +10,12 @@ tag = Tag()
 def nfc_server():
     mifare = nxppy.Mifare()
     while True:
-        uid=mifare.select()
+        try:
+            uid = mifare.select()
+        except nxppy.SelectError:
+            continue
         if uid is None:
             continue
         tag.id = uid
         tag.new = 1
-        print(uid)
-
-nfc_server()
+        print('Found NFC tag: ' + uid)
