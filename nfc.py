@@ -12,7 +12,7 @@ def nfc_server():
     while True:
         uid=mifare.select()
         if uid is None:
-            break
+            continue
         tag.id = uid
         tag.new = 1
         print(uid)
