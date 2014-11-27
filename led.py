@@ -39,6 +39,8 @@ def blink():
         set(RED,OFF)
         time.sleep(0.2)
 
+import time
+
 if __name__ == '__main__':
     init()
     blink()
