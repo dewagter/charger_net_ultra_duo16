@@ -4,6 +4,7 @@
 # sudo sudo pip-3.2 install nxppy
 # Enable SPI: raspi-conf or
 # sudo vi /etc/modprobe.d/raspi-blacklist.conf
+# Reboot or sudo modprobe spi-bcm2708
 
 import nxppy
 import time
