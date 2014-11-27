@@ -30,13 +30,13 @@ def set(led,value):
 def blink():
     # Boot sequence
     for i in range(0, 5):
-        led.set(led.GREEN,led.ON)
-        led.set(led.ORANGE,led.ON)
-        led.set(led.RED,led.ON)
+        set(GREEN,ON)
+        set(ORANGE,ON)
+        set(RED,ON)
         time.sleep(0.2)
-        led.set(led.GREEN,led.OFF)
-        led.set(led.ORANGE,led.OFF)
-        led.set(led.RED,led.OFF)
+        set(GREEN,OFF)
+        set(ORANGE,OFF)
+        set(RED,OFF)
         time.sleep(0.2)
 
 if __name__ == '__main__':
