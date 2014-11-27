@@ -3,6 +3,7 @@
 import http.client
 import threading
 import time
+import settings
 
 def make_request(channel):
     req = "/charger.php"
@@ -15,9 +16,9 @@ def make_request(channel):
     for i in range(0,7):
         req += "&volt_cell_" + str(i+1) + "=" + str(channel.cells[i])
     return req
-    
 
-def upload_thread(url, mycharger):
+
+def upload_server(mycharger):
     lock = threading.Lock()
     while True:
         req = []
@@ -33,18 +34,11 @@ def upload_thread(url, mycharger):
         for r in req:
             try:
                 print(r)
-                conn = http.client.HTTPConnection(url, 80,timeout=10)
+                conn = http.client.HTTPConnection(settings.LOGSERVER_URL, 80,timeout=10)
                 conn.request("GET", r)
                 r1 = conn.getresponse()
-                print(url,r1.status, r1.reason)
+                print(settings.LOGSERVER_URL, r1.status, r1.reason)
             except:
-                print("Upload failed")    
+                print("Upload failed")
 
-        time.sleep(5)
-
-        
-import ultraduo
-import settings
-if __name__ == '__main__':
-    mycharger = ultraduo.UltraDuo()
-    upload_thread(settings.MY_PRIVATE_SERVER, mycharger)
+        time.sleep(settings.LOGSERVER_SLEEP)

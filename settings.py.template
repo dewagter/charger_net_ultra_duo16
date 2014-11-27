@@ -1,1 +1,5 @@
-MY_PRIVATE_SERVER = '192.168.0.1'
+import imaxb6
+import ultraduo
+
+LOGSERVER_URL = '192.168.0.1'
+chargers = [('COM11', imaxb6.ImaxB6()), ('COM12', ultraduo.UltraDuo())]

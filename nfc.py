@@ -1,4 +1,6 @@
 import nxppy
+import time
+import RPi.GPIO as GPIO
 
 class Tag():
     id = ''
@@ -19,3 +21,5 @@ def nfc_server():
         tag.id = uid
         tag.new = 1
         print('Found NFC tag: ' + uid)
+        GPIO.output(15,not GPIO.input(15))
+        time.sleep(1)
