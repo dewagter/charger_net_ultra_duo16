@@ -1,3 +1,8 @@
+# Install using:
+# sudo apt-get update
+# sudo apt-get install python3-pip
+# sudo sudo pip-3.2 install nxppy
+
 import nxppy
 import time
 import RPi.GPIO as GPIO
@@ -23,3 +28,7 @@ def nfc_server():
         print('Found NFC tag: ' + uid)
         GPIO.output(15,not GPIO.input(15))
         time.sleep(1)
+
+
+if __name__ == '__main__':
+    nfc_server()
