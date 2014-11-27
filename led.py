@@ -25,3 +25,20 @@ def init():
 
 def set(led,value):
     GPIO.output(led, value)
+
+
+def blink():
+    # Boot sequence
+    for i in range(0, 5):
+        led.set(led.GREEN,led.ON)
+        led.set(led.ORANGE,led.ON)
+        led.set(led.RED,led.ON)
+        time.sleep(0.2)
+        led.set(led.GREEN,led.OFF)
+        led.set(led.ORANGE,led.OFF)
+        led.set(led.RED,led.OFF)
+        time.sleep(0.2)
+
+if __name__ == '__main__':
+    init()
+    blink()
