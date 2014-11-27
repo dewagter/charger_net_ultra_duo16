@@ -2,6 +2,8 @@
 # sudo apt-get update
 # sudo apt-get install python3-pip
 # sudo sudo pip-3.2 install nxppy
+# Enable SPI: raspi-conf or
+# sudo vi /etc/modprobe.d/raspi-blacklist.conf
 
 import nxppy
 import time
