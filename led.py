@@ -26,6 +26,9 @@ def init():
 def set(led,value):
     GPIO.output(led, value)
 
+def toggle(led):
+    GPIO.output(led,not GPIO.input(led))
+
 
 def blink():
     # Boot sequence
