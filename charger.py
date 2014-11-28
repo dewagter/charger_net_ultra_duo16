@@ -4,7 +4,12 @@
 class Channel():
     """Store the charging state of a single battery"""
     def __init__(self):
-        self.input = ''
+        # Global status
+        self.connection = 'disconnected'
+        self.identification = 'unknown'
+
+        # Parsed Data
+        self.raw_data = ''
         self.battery = 'none'
         self.chargecount = 0
         self.inputvoltage = 0

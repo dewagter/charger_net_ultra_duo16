@@ -43,9 +43,10 @@ class UltraDuoChannel(charger.Channel):
     def parse(self, s):
         if (len(s) == 64):
             # store raw
-            self.input = s
+            self.raw_data = s
             # parse content
             self.battery = 'CDW' + str(int(s[0:2],16))
+            self.identification = 'identified'
             self.chargecount = int(s[2:6],16)
             self.inputvoltage = int(s[6:10],16)
             self.status = self.decode_status(s[10:16])
@@ -59,12 +60,16 @@ class UltraDuoChannel(charger.Channel):
             for i in [36,40,44,48,52,56,60]:
                 self.cells[nr] = int(s[i:i+4] , 16)
                 nr = nr + 1
+            if (self.cells[0] > 0):
+                self.connection = 'connected'
+            else:
+                self.connection = 'disconnected'
     
 
 class UltraDuo(charger.Charger):
     def __init__(self):
         self.channels = []
-        self.readsize = 64
+        self.readsize = 128
         self.baudrate = 9600
         self.name = 'Graupner Ultra Duo Plus 60'
         self.channels.append( UltraDuoChannel() )

@@ -22,7 +22,7 @@ def error(string, condition):
 
 def make(channel, haserror):
     s = "<hr>\n<table>"
-    s = s + "<tr><td><b>Battery:</b></td><td>" + str(channel.battery)  + " (" + str(channel.chargecount) + " cycles)</td></tr>\n"
+    s = s + "<tr><td><b>Battery:</b></td><td>" + str(channel.battery)  + " (" + str(channel.chargecount) + " cycles) " + channel.connection + "/" + channel.identification + "</td></tr>\n"
     s = s + "<tr><td><b>InputVoltage:</b></td><td>" + str(float(channel.inputvoltage)/1000.0) + " V</td></tr>\n"
     s = s + "<tr><td><b>Voltage:</b></td><td>" + str(float(channel.voltage)/1000.0) + " V</td></tr>\n"
     stat = channel.status
@@ -109,11 +109,11 @@ import imaxb6
 import charger
 
 if __name__ == '__main__':
-    #start_webserver(ultraduo.UltraDuo())
+    start_webserver(ultraduo.UltraDuo())
     #start_webserver(imaxb6.ImaxB6())
-    c = charger.Charger()
-    c.channels.append(charger.Channel())
-    c.channels.append(charger.Channel())
-    c.channels.append(charger.Channel())
-    c.channels.append(charger.Channel())
-    start_webserver(c)
+    #c = charger.Charger()
+    #c.channels.append(charger.Channel())
+    #c.channels.append(charger.Channel())
+    #c.channels.append(charger.Channel())
+    #c.channels.append(charger.Channel())
+    #start_webserver(c)

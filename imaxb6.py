@@ -9,6 +9,7 @@ def decimal(data, offset):
 class ImaxB6Channel(charger.Channel):    
 
     def decode_array(self, data):
+        self.raw_data = data
         sample = {}
         if not (len(data) == 76):
             print("Length Error")

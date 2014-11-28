@@ -26,7 +26,7 @@ def upload_server(mycharger):
         try:
             for ch in mycharger.channels:
                 # if battery is connected
-                if (ch.cells[0] > 0):
+                if ((ch.identification == 'identified') and (ch.connection == 'connected')):
                     req.append( make_request(ch) )
         finally:
             lock.release()

@@ -1,5 +1,6 @@
 import imaxb6
 import ultraduo
 
+LOGSERVER_SLEEP = 2
 LOGSERVER_URL = '192.168.0.1'
 chargers = [('COM11', imaxb6.ImaxB6()), ('COM12', ultraduo.UltraDuo())]
