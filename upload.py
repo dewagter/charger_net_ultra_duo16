@@ -21,6 +21,7 @@ def make_request(channel):
 
 
 def upload_server(mycharger):
+    global response
     lock = threading.Lock()
     while True:
         req = []
