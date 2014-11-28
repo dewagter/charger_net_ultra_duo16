@@ -1,8 +1,8 @@
 import RPi.GPIO as GPIO
 
-GREEN = 7
-ORANGE = 11
-RED = 15
+GREEN = 11
+ORANGE = 15
+RED = 7
 
 
 ON = True
@@ -33,13 +33,13 @@ def toggle(led):
 def blink():
     # Boot sequence
     for i in range(0, 5):
-        set(GREEN,ON)
+        #set(GREEN,ON)
         set(ORANGE,ON)
-        set(RED,ON)
+        #set(RED,ON)
         time.sleep(0.2)
-        set(GREEN,OFF)
+        #set(GREEN,OFF)
         set(ORANGE,OFF)
-        set(RED,OFF)
+        #set(RED,OFF)
         time.sleep(0.2)
 
 import time
