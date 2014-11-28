@@ -22,6 +22,11 @@ class Channel():
         self.cells = [0, 0, 0, 0, 0, 0, 0, 0]
         self.extra = {}
 
+    def indentify(self, name):
+        self.battery = name
+        self.indentification = 'identified'
+
+
     def print(self):
         s = self.battery + ","
         s = s + str(self.chargecount) + ","
