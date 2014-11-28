@@ -9,7 +9,10 @@ def decimal(data, offset):
 class ImaxB6Channel(charger.Channel):    
 
     def decode_array(self, data):
+        # raw data
         self.raw_data = data
+
+        # decode content
         sample = {}
         if not (len(data) == 76):
             print("Length Error")
@@ -25,10 +28,8 @@ class ImaxB6Channel(charger.Channel):
         c2 = ((crc & 0xf0) >> 4) + 0x30
         if not ((c2 == data[73]) and (c1 == data[74])) :
             print("CRC ERROR: sum=", hex(crc), hex(data[73]), "!=?", hex(c2), hex(data[74]),"!=?",hex(c1))
-
         for i in range(1,73):
             data[i] -= 128
-
         
         # print(data)
         # Protocol reverse engineered by
@@ -59,10 +60,16 @@ class ImaxB6Channel(charger.Channel):
                 self.status = 'unknown'
         else:
             self.status = 'unknown'
-            
         #print(sample)
-
         self.extra = sample
+
+        # connection logic
+        if (self.cells[0] > 0):
+            self.connection = 'connected'
+        else:
+            self.connection = 'disconnected'
+        self.newdata += 1
+        
 
 
 class ImaxB6(charger.Charger):

@@ -60,11 +60,12 @@ class UltraDuoChannel(charger.Channel):
             for i in [36,40,44,48,52,56,60]:
                 self.cells[nr] = int(s[i:i+4] , 16)
                 nr = nr + 1
+            # connection logic
             if (self.cells[0] > 0):
                 self.connection = 'connected'
             else:
                 self.connection = 'disconnected'
-    
+            self.newdata += 1
 
 class UltraDuo(charger.Charger):
     def __init__(self):

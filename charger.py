@@ -7,6 +7,7 @@ class Channel():
         # Global status
         self.connection = 'disconnected'
         self.identification = 'unknown'
+        self.newdata = 0
 
         # Parsed Data
         self.raw_data = ''
