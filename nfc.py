@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Install using:
 # sudo apt-get update
 # sudo apt-get install python3-pip
