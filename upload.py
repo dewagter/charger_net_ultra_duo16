@@ -5,7 +5,7 @@ import threading
 import time
 import settings
 
-status = 0
+response = 0
 
 def make_request(channel):
     req = "/charger.php"
@@ -39,10 +39,10 @@ def upload_server(mycharger):
                 conn = http.client.HTTPConnection(settings.LOGSERVER_URL, 80,timeout=10)
                 conn.request("GET", r)
                 r1 = conn.getresponse()
-                status = r1.status
-                print(settings.LOGSERVER_URL, r1.status, r1.reason)
+                response = r1.status
+                print(settings.LOGSERVER_URL, r1.status, r1.reason, response)
             except:
-                status = -1
+                response = -1
                 print("Upload failed")
 
         time.sleep(settings.LOGSERVER_SLEEP)
