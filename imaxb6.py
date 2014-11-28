@@ -68,7 +68,7 @@ class ImaxB6Channel(charger.Channel):
             self.connection = 'connected'
         else:
             # On disconnect:
-            if self.connection == 'connected'
+            if self.connection == 'connected':
                 self.identification = 'unknown'
                 self.connection = 'disconnected'
         self.newdata += 1
