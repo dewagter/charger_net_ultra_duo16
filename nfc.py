@@ -8,7 +8,6 @@
 
 import nxppy
 import time
-# import led
 
 class Tag():
     id = ''
@@ -28,7 +27,6 @@ def nfc_server():
         tag.id = uid
         tag.new = 1
         print('Found NFC tag: ' + uid)
-        # led.toggle(led.ORANGE)
         time.sleep(1)
 
 
