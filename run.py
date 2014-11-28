@@ -21,19 +21,23 @@ led.blink()
 
 
 c = ultraduo.UltraDuo()
-p = 'COM11'
+p = '/dev/ttyUSB0'
 
 #for charger in settings.chargers:
 _thread.start_new_thread( seriallog.serial_server, (p, c) )
-_thread.start_new_thread( upload.upload_server, (c, ) )
-webserver.start_webserver(c)
+#_thread.start_new_thread( upload.upload_server, (c, ) )
+_thread.start_new_thread( webserver.start_webserver, (c, ) )
 _thread.start_new_thread( nfc.nfc_server, () )
 
 while True:
-  if c.channel[0].newdata > 0:
+  if c.channels[0].newdata > 0:
     led.toggle(led.RED)
-    c.channel[0].newdata = 0
-  if nfc.tag.new > 1:
+    c.channels[0].newdata = 0
+  if (nfc.tag.new > 0):
     led.toggle(led.ORANGE)
     nfc.tag.new = 0
+    print('Main: ', nfc.tag)
+  led.toggle(led.GREEN)
+  time.sleep(1)
+  print(nfc.tag.new, nfc.tag.id)
 
