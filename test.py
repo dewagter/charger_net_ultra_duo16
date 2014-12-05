@@ -1,23 +1,35 @@
 import usb.core
 import sys
 
-def sendPacket( cmd, data ):
-  s_data = bytearray(len(data)+7)
-  s_data[0] = 15
-  s_data[1] = 3 + len(data)
-  s_data[2] = cmd
-  s_data[3] = 0
-  checksum = cmd
+def sendPacket( cmd, data, cmd2 = None ):
+  if cmd2 != None:
+    s_data = bytearray(len(data)+8)
+    s_data[0] = 15
+    s_data[1] = 4 + len(data)
+    s_data[2] = cmd
+    s_data[3] = cmd2
+    s_data[4] = 0
+    checksum = cmd+cmd2
+    k = 5
+  else:
+    s_data = bytearray(len(data)+7)
+    s_data[0] = 15
+    s_data[1] = 3 + len(data)
+    s_data[2] = cmd
+    s_data[3] = 0
+    checksum = cmd
+    k = 4
+
   for i,b in enumerate(data):
-    s_data[i+4] = b
+    s_data[i+k] = b
     checksum += b
-  s_data[4+len(data)] = checksum % 256
-  s_data[5+len(data)] = 255
-  s_data[6+len(data)] = 255
+  s_data[k+len(data)] = checksum % 256
+  s_data[k+len(data)+1] = 255
+  s_data[k+len(data)+2] = 255
   dev.write(0x1, s_data)
 
 def recvPacket():
-  data = dev.read(0x81, 64, timeout=10000)
+  data = dev.read(0x81, 64, timeout=150)
   packet_length = data[1]
   checksum = 0
   for i in range(2, packet_length+1):
@@ -28,7 +40,7 @@ def recvPacket():
   return data[4:packet_length+1]
 
 def recvReply():
-  data = dev.read(0x81, 64, timeout=10000)
+  data = dev.read(0x81, 64, timeout=150)
   return (data[0] == 240 and data[1] == 255 and data[2] == 255)
 
 def getSystemFeed():
@@ -52,11 +64,12 @@ def getSystemFeed():
   ret_data["cell4"] = (data[22]*256) + data[23]
   ret_data["cell5"] = (data[24]*256) + data[25]
   ret_data["cell6"] = (data[26]*256) + data[27]
+  ret_data["cell7"] = (data[28]*256) + data[29]
+  ret_data["cell8"] = (data[30]*256) + data[31]
   return ret_data
 
 def getData():
   sendPacket(85, [])
-
   data = recvPacket()
   #return (data)
   ret_data = {}
@@ -120,6 +133,41 @@ def startCharger(batt_type, cells, mode, ccurrent, dcurrent, cellvolt, endvolt,
   sendPacket(5, packet)
   return recvReply()
 
+def setCycleTime(time):
+  packet = bytearray(1)
+  packet[0] = time
+  sendPacket(17, packet, 0)
+  return recvReply()
+
+def setTimeLimit(enable, limit):
+  packet = bytearray(3)
+  packet[0] = enable
+  packet[1] = limit >> 8
+  packet[2] = limit % 256
+  sendPacket(17, packet, 1)
+  return recvReply()
+
+def setCapLimit(enable, limit):
+  packet = bytearray(3)
+  packet[0] = enable
+  packet[1] = limit >> 8
+  packet[2] = limit % 256
+  sendPacket(17, packet, 2)
+  return recvReply()
+
+def setSound(key_buzz, sys_buzz):
+  packet = bytearray(2)
+  packet[0] = key_buzz
+  packet[1] = sys_buzz
+  sendPacket(17, packet, 3)
+  return recvReply()
+
+def setTempLimit(temp):
+  packet = bytearray(1)
+  packet[0] = temp
+  sendPacket(17, packet, 5)
+  return recvReply()
+
 def startChargeLipo(cells, ccurrent):
   return startCharger(0, cells, 0, ccurrent, ccurrent, 3200, 4200)
 
@@ -129,7 +177,7 @@ def stopCharge():
 
 
 import time
-# find our device
+# find our device (find_all=True)
 dev = usb.core.find(idVendor=0x0000, idProduct=0x0001)
 if dev is None:
   sys.exit("No IMAX B6 charger is found");
@@ -142,7 +190,11 @@ except usb.core.USBError as e:
 
 #while True:
 #  print(getData())
-#  time.sleep(2)
+#  time.sleep(0.4)
 #print(startChargeLipo(3, 2000))
 #stopCharge()
 #getStatusFeed()
+#setTempLimit(70)
+#setTimeLimit(True, 180)
+#setSound(False, False)
+#setCapLimit(1,8000)
