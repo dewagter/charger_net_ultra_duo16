@@ -61,7 +61,7 @@ class UltraDuoChannel(charger.Channel):
                 self.cells[nr] = int(s[i:i+4] , 16)
                 nr = nr + 1
             # connection logic
-            if (self.cells[0] > 0):
+            if (self.cells[0] > 0) or (self.status == 'charging') or (self.status == 'discharging'):
                 self.connection = 'connected'
             else:
                 self.connection = 'disconnected'
