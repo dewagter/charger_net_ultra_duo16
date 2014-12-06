@@ -1,1 +1,8 @@
-sudo python3 run.py 2&>1 > /dev/null &
+#!/bin/sh
+# chargerd
+# startup
+
+cd /
+cd home/pi/network_chargers
+sudo python3 run.py 2>&1 > /dev/null &
+cd /

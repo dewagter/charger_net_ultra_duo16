@@ -8,7 +8,7 @@ fixedip:
 install:
 	sudo cp ./netcharger /etc/init.d/
 	sudo chmod +x /etc/init.d/netcharger
-	sudo update-rc.d /etc/init.d/netcharger defaults
+	sudo update-rc.d netcharger defaults
 
 start:
 	sudo /etc/init.d/netcharger start
