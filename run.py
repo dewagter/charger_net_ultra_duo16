@@ -14,17 +14,18 @@ import led
 
 import ultraduo
 import imaxb6
+import skyrc
 import charger
 
 led.init()
 led.blink()
 
 
-c = ultraduo.UltraDuo()
-p = '/dev/ttyUSB0'
+c = skyrc.SkyRC()
 
 #for charger in settings.chargers:
-_thread.start_new_thread( seriallog.serial_server, (p, c) )
+_thread.start_new_thread( c.run, () )
+#_thread.start_new_thread( seriallog.serial_server, (p, c) )
 _thread.start_new_thread( upload.upload_server, (c, ) )
 _thread.start_new_thread( webserver.start_webserver, (c, ) )
 _thread.start_new_thread( nfc.nfc_server, () )
