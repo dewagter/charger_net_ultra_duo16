@@ -32,6 +32,7 @@ def upload_server(mycharger):
                 if ((ch.identification == 'identified') and (ch.connection == 'connected')):
                     req.append( make_request(ch) )
         finally:
+            print("Upload: Lock Error")
             lock.release()
 
         for r in req:

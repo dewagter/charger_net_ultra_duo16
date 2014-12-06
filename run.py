@@ -37,7 +37,6 @@ while True:
     led.toggle(led.ORANGE)
     nfc.tag.new = 0
     print('Main: ', nfc.tag)
-  print(upload.response)
   if (upload.response == 200):
     led.toggle(led.GREEN)
     upload.response = 0
