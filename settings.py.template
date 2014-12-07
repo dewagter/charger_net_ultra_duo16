@@ -1,6 +1,5 @@
-import imaxb6
-import ultraduo
+import skyrc
 
 LOGSERVER_SLEEP = 2
-LOGSERVER_URL = '192.168.0.1'
-chargers = [('COM11', imaxb6.ImaxB6()), ('COM12', ultraduo.UltraDuo())]
+LOGSERVER_URL = 'log.mavlab.info'
+chargers = [skyrc.SkyRC(sample_time = 0.1)]

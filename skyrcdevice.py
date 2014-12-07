@@ -3,13 +3,13 @@ import usb.core
 import sys
 import charger
 
-class SkyRCHelper():
+class SkyRCDevice():
   devices = list(usb.core.find(find_all=True, idVendor=0x0000, idProduct=0x0001))
   dev_index = 0
 
   def __init__(self):
-    if SkyRCHelper.dev_index < len(SkyRCHelper.devices):
-      self.dev = SkyRCHelper.devices[SkyRCHelper.dev_index]
+    if SkyRCDevice.dev_index < len(SkyRCDevice.devices):
+      self.dev = SkyRCDevice.devices[SkyRCDevice.dev_index]
 
       try:
         self.dev.set_configuration()
@@ -17,7 +17,7 @@ class SkyRCHelper():
       except usb.core.USBError as e:
         sys.exit("Cannot set configuration of the device: %s" % str(e))
 
-      SkyRCHelper.dev_index += 1
+      SkyRCDevice.dev_index += 1
     else:
       sys.exit("No SkyRC Charger found")
 
@@ -49,7 +49,10 @@ class SkyRCHelper():
     self.dev.write(0x1, s_data)
 
   def recvPacket(self):
-    data = self.dev.read(0x81, 64, timeout=150)
+    try:
+      data = self.dev.read(0x81, 64, timeout=600)
+    except:
+      return None
     packet_length = data[1]
     checksum = 0
     for i in range(2, packet_length+1):
@@ -60,7 +63,10 @@ class SkyRCHelper():
     return data[4:packet_length+1]
 
   def recvReply(self):
-    data = self.dev.read(0x81, 64, timeout=150)
+    try:
+      data = self.dev.read(0x81, 64, timeout=600)
+    except:
+      return False
     return (data[0] == 240 and data[1] == 255 and data[2] == 255)
 
   def getSystemFeed(self):
@@ -178,15 +184,14 @@ class SkyRCHelper():
 
 import time
 if __name__ == '__main__':
-  test = SkyRCHelper()
+  dev = SkyRCDevice()
   #while True:
-  #  print(test.getSystemFeed())
-  #  print(vars(test.getData()))
+  #  print(dev.getSystemFeed())
+  #  print(dev.getData())
   #  time.sleep(0.2)
-  #print(test.startChargeLipo(3, 2000))
-  #test.stopCharge()
-  #test.getStatusFeed()
-  #test.setTempLimit(70)
-  #test.setTimeLimit(True, 180)
-  #test.setSound(False, False)
-  #test.setCapLimit(1,8000)
+  #print(dev.startChargeLipo(3, 2000))
+  #dev.stopCharge()
+  #dev.setTempLimit(70)
+  #dev.setTimeLimit(True, 180)
+  #dev.setSound(False, False)
+  #dev.setCapLimit(1,8000)
