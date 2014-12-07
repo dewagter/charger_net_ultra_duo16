@@ -3,11 +3,8 @@
 import threading
 import http.server
 import socketserver
-
 import beep
-
-PORT_NUMBER = 8000
-
+import _thread
 
 def color(string, color):
     ret = '<font style=\"BACKGROUND-COLOR: ' + color + '\"><b>'
@@ -20,11 +17,13 @@ def error(string, condition):
         return color(string,'red')
     return string
 
-def make(channel, haserror):
-    s = "<hr>\n<table>"
-    s = s + "<tr><td><b>Battery:</b></td><td>" + str(channel.battery)  + " (" + str(channel.chargecount) + " cycles) " + channel.connection + "/" + channel.identification + "</td></tr>\n"
-    s = s + "<tr><td><b>InputVoltage:</b></td><td>" + str(float(channel.inputvoltage)/1000.0) + " V</td></tr>\n"
-    s = s + "<tr><td><b>Voltage:</b></td><td>" + str(float(channel.voltage)/1000.0) + " V</td></tr>\n"
+def write_channel(channel, haserror):
+    s = "<hr /><table>\n"
+    if channel.battery != None:
+        s += "<tr><td><b>Battery:</b></td><td>" + str(channel.battery.id) + " / " + str(channel.connected) + "</td></tr>\n"
+    else:
+        s += "<tr><td><b>Battery:</b></td><td> Unknown /" + str(channel.connected) + "</td></tr>\n"
+    s += "<tr><td><b>Voltage:</b></td><td>" + str(float(channel.voltage)/1000.0) + " V</td></tr>\n"
     stat = channel.status
     if (stat == 'ready'):
         stat = color(stat, 'green')
@@ -34,23 +33,25 @@ def make(channel, haserror):
     else:
         stat = color(stat, 'red')
         haserror[0] = 1
-    s = s + "<tr><td><b>Status:</b></td><td><b>" + stat + "</b></td></tr>\n"
-    s = s + "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
-    s = s + "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
-    s = s + "<tr><td><b>Temperature:</b></td><td>" + error(str(float(channel.temperature)/10.0),channel.temperature > 300) + " degrees C</td></tr>\n"
-    s = s + "<tr><td><b>Extra:</b></td><td>" + str(channel.extra) + " </td></tr>\n"
-    s = s + "<tr><td><b>Cells:</b></td><td>"
+    s += "<tr><td><b>Status:</b></td><td><b>" + stat + "</b></td></tr>\n"
+    s += "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
+    #s += "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
+    #s += "<tr><td><b>Temperature:</b></td><td>" + error(str(float(channel.temperature)/10.0),channel.temperature > 300) + " degrees C</td></tr>\n"
+    s += "<tr><td><b>Cells:</b></td><td>"
     for i in range(0,8):
-        s = s + str(float(channel.cells[i])/1000.0) + "V, "
-    s = s + "</td></tr></table>\n"
+        s += str(float(channel.cells[i])/1000.0) + "V, "
+    s += "</td></tr></table>\n"
     return s
 
 # This class will handle any incoming request from
 # a browser 
-class myHandler(http.server.BaseHTTPRequestHandler):
+class chargeHandler(http.server.BaseHTTPRequestHandler):
     #def __init__( self ):
     lock = threading.Lock()
-    charger = []
+    chargers = []
+
+    def log_message(self, format, *args):
+        return
 
     # Handler for the GET requests
     def do_HEAD(self):
@@ -59,42 +60,41 @@ class myHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        print   ('Get request received')
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
 
         self.lock.acquire()
-        u = self.charger
         try:
             # First make body and check for errors
             haserror = [ 0 ]
-            s = "<body>\n<h1>" + u.name + "</h1>\n"
-            for c in u.channels:
-                s += make(c, haserror)
-            s += "<hr>\n</body>\n</html>"
+            body = "<body>\n"
+            for charger in chargeHandler.chargers:
+                body += "<h1>" + charger.name + "</h1>\n"
+                for ch in charger.channels:
+                    body += write_channel(ch, haserror)
+            body += "</body>\n"
 
             # Then add header with sound if error
-            h = "<html>\n\t<head>\n\t\t<title>" + u.name + "</title>\n"
-            h += "\t\t<meta http-equiv=\"refresh\" content=\"1\" />\n"
+            head = "<head>\n\t\t<title>Network Chargers</title>\n"
+            head += "\t\t<meta http-equiv=\"refresh\" content=\"1\" />\n"
             if (haserror[0] == 1):
-                h += beep.beep()
-            h += "\t</head>\n"
-            s = h + s
+                head += beep.beep()
+            head += "\t</head>\n"
+            total = "<html>\n" + head + body + "</html>"
             
         finally:
             self.lock.release()
-        self.wfile.write(bytes(s, "utf-8"))
+        self.wfile.write(bytes(total, "utf-8"))
 
 
-def start_webserver(mycharger):
+def start_webserver(chargers, port):
     try:
         # Create a web server and define the handler to manage the
         # incoming request
-        charge_handler = myHandler
-        charge_handler.charger = mycharger
-        server = http.server.HTTPServer(('', PORT_NUMBER), charge_handler)
-        print ('Started httpserver on port ' , PORT_NUMBER)
+        chargeHandler.chargers = chargers
+        server = http.server.HTTPServer(('', port), chargeHandler)
+        print ('Started httpserver on port ' , port)
 
         # Wait forever for incoming http requests
         server.serve_forever()
@@ -103,17 +103,12 @@ def start_webserver(mycharger):
         print ('^C received, shutting down the web server')
         server.socket.close()
 
+def start(chargers, port = 8000):
+    _thread.start_new_thread(start_webserver, (chargers, port))
 
-import ultraduo
-import imaxb6
-import charger
+import settings
 
 if __name__ == '__main__':
-    start_webserver(ultraduo.UltraDuo())
-    #start_webserver(imaxb6.ImaxB6())
-    #c = charger.Charger()
-    #c.channels.append(charger.Channel())
-    #c.channels.append(charger.Channel())
-    #c.channels.append(charger.Channel())
-    #c.channels.append(charger.Channel())
-    #start_webserver(c)
+    start(settings.chargers)
+    while True:
+        pass

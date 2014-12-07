@@ -28,11 +28,10 @@ for charger in settings.chargers:
 
 nfc.start(settings.logserver_address, handle_nfc)
 upload.start(settings.chargers, settings.logserver_address, settings.logserver_timeout)
+webserver.start(settings.chargers, settings.webserver_port)
 
 #for charger in settings.chargers:
 #_thread.start_new_thread( seriallog.serial_server, (p, c) )
-#_thread.start_new_thread( webserver.start_webserver, (c, ) )
-#_thread.start_new_thread( nfc.nfc_server, () )
 
 while True:
   pass
