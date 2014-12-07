@@ -50,7 +50,7 @@ class SkyRCDevice():
 
   def recvPacket(self):
     try:
-      data = self.dev.read(0x81, 64, timeout=600)
+      data = self.dev.read(0x81, 64, timeout=1500)
     except:
       return None
     packet_length = data[1]
@@ -64,7 +64,7 @@ class SkyRCDevice():
 
   def recvReply(self):
     try:
-      data = self.dev.read(0x81, 64, timeout=600)
+      data = self.dev.read(0x81, 64, timeout=1500)
     except:
       return False
     return (data[0] == 240 and data[1] == 255 and data[2] == 255)
@@ -185,11 +185,13 @@ class SkyRCDevice():
 import time
 if __name__ == '__main__':
   dev = SkyRCDevice()
-  #while True:
-  #  print(dev.getSystemFeed())
-  #  print(dev.getData())
-  #  time.sleep(0.2)
-  #print(dev.startChargeLipo(3, 2000))
+  print(dev.getSystemFeed())
+  print(dev.getData())
+  print(dev.startChargeLipo(3, 2000))
+  while True:
+    print(dev.getSystemFeed())
+    print(dev.getData())
+    time.sleep(0.5)
   #dev.stopCharge()
   #dev.setTempLimit(70)
   #dev.setTimeLimit(True, 180)

@@ -17,7 +17,7 @@ def make_request(channel):
         req += "&volt_cell_" + str(i+1) + "=" + str(channel.cells[i])
     return req
 
-def upload_server(chargers, address, timeout):
+def upload_server(chargers, address, timeout, debug):
     lock = threading.Lock()
     while True:
         req = []
@@ -26,7 +26,7 @@ def upload_server(chargers, address, timeout):
             for charger in chargers:
                 for ch in charger.channels:
                     # if battery is connected and identified
-                    if ch.battery != None and ch.connected and ch.status != "idle":
+                    if ch.battery != None and ch.connected:
                         req.append( make_request(ch) )
         finally:
             print("Upload: Lock Error")
@@ -34,15 +34,17 @@ def upload_server(chargers, address, timeout):
 
         for r in req:
             try:
-                print(r)
+                if debug:
+                    print(r)
                 conn = http.client.HTTPConnection(address, 80,timeout=10)
                 conn.request("GET", r)
                 r1 = conn.getresponse()
-                print(address, r1.status, r1.reason)
+                if debug:
+                    print(address, r1.status, r1.reason)
             except:
                 print("Upload failed")
 
         time.sleep(timeout)
 
-def start(chargers, address, timeout):
-    _thread.start_new_thread(upload_server, (chargers, address, timeout))
+def start(chargers, address, timeout, debug = False):
+    _thread.start_new_thread(upload_server, (chargers, address, timeout, debug))
