@@ -56,10 +56,10 @@ class ImaxB6Channel(charger.Channel):
         elif self.active == 1 and self.state == 0:
             self.status = 'discharging'
         else:
-            self.status = 'unknown'
+            self.status = 'ready'
 
         # connection logic
-        if (self.cells[0] > 0):
+        if (self.cells[0] > 1000):
             self.connected = True
         # On disconnect
         elif self.connected:
