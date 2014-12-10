@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import charger
+import seriallog
 
 def decimal(data, offset):
     return data[offset+1] * 1000 + data[offset+2] * 10;
@@ -13,7 +14,6 @@ class ImaxB6Channel(charger.Channel):
         self.raw_data = data
 
         # decode content
-        sample = {}
         if not (len(data) == 76):
             print("Length Error")
         if not (data[0] == ord('{')):
@@ -34,9 +34,9 @@ class ImaxB6Channel(charger.Channel):
         # print(data)
         # Protocol reverse engineered by
         # Ref: http://blog.dest-unreach.be/2012/01/29/imax-b6-charger-protocol-reverse-engineered
-        sample['state']         = data[7+1]
-        sample['mode']          = data[22+1]
-        sample['active']        = data[23+1]
+        self.state              = data[7+1]
+        self.mode               = data[22+1]
+        self.active            = data[23+1]
         self.current            = decimal(data, 32)
         self.voltage            = decimal(data, 34)
         self.inputvoltage       = decimal(data, 40)
@@ -47,48 +47,42 @@ class ImaxB6Channel(charger.Channel):
         self.cells[3]           = decimal(data, 50)
         self.cells[4]           = decimal(data, 52)
         self.cells[5]           = decimal(data, 54)
-        sample['minutes']       = data[69+1]
+        self.chargetime         = data[69+1]
 
-        if sample['active'] == 0:
+        if self.active == 0:
             self.status = 'ready'
-        elif sample['active'] == 1:
-            if sample['state'] == 1:
-                self.status = 'charging'
-            elif sample['state'] == 0:
-                self.status = 'discharging'
-            else:
-                self.status = 'unknown'
+        elif self.active == 1 and self.state == 1:
+            self.status = 'charging'
+        elif self.active == 1 and self.state == 0:
+            self.status = 'discharging'
         else:
             self.status = 'unknown'
-        #print(sample)
-        self.extra = sample
 
         # connection logic
         if (self.cells[0] > 0):
-            self.connection = 'connected'
-        else:
-            # On disconnect:
-            if self.connection == 'connected':
-                self.identification = 'unknown'
-                self.connection = 'disconnected'
-        self.newdata += 1
+            self.connected = True
+        # On disconnect
+        elif self.connected:
+            self.battery = None
+            self.connected = True
         
 
 
 class ImaxB6(charger.Charger):
-    def __init__(self):
+    def __init__(self, port):
         self.channels = []
         self.line = []
-        self.readsize = 32
-        self.baudrate = 9600
+        self.port = port
         self.name = "IMAX B6 Charger"
         self.channels.append(ImaxB6Channel())
+
+    def start(self):
+        seriallog.start(self.port, self.process_serial_data, 9600, 32)
 
     def parse(self,line):
         self.channels[0].decode_array(line)
 
     def process_serial_data(self,feed):
-        updated = 0
         for b in feed:
             self.line.append(b)
             if (b == ord('{')):
@@ -100,12 +94,10 @@ class ImaxB6(charger.Charger):
                     if (self.line[0] == ord('{')):
                         #print(line)
                         self.parse(self.line)
-                        updated = 1
                     else:
                         print("Bad start character")
                 else:
                     print("Bad line length: " + str(len(self.line)))
-        return updated
         
 
 

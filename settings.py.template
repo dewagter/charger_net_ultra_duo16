@@ -1,5 +1,7 @@
 import skyrc
+import imaxb6
 
-LOGSERVER_SLEEP = 2
-LOGSERVER_URL = 'log.mavlab.info'
-chargers = [skyrc.SkyRC(sample_time = 0.1)]
+logserver_timeout = 5
+logserver_address = 'log.mavlab.info'
+webserver_port = 8000
+chargers = [skyrc.SkyRC(sample_time = 0.5), imaxb6.ImaxB6(port = "/dev/ttyUSB0")]

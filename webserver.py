@@ -22,7 +22,7 @@ def write_channel(channel, haserror):
     if channel.battery != None:
         s += "<tr><td><b>Battery:</b></td><td>" + str(channel.battery.id) + " / " + str(channel.connected) + "</td></tr>\n"
     else:
-        s += "<tr><td><b>Battery:</b></td><td> Unknown /" + str(channel.connected) + "</td></tr>\n"
+        s += "<tr><td><b>Battery:</b></td><td> Unknown / " + str(channel.connected) + "</td></tr>\n"
     s += "<tr><td><b>Voltage:</b></td><td>" + str(float(channel.voltage)/1000.0) + " V</td></tr>\n"
     stat = channel.status
     if (stat == 'ready'):
@@ -35,10 +35,13 @@ def write_channel(channel, haserror):
         haserror[0] = 1
     s += "<tr><td><b>Status:</b></td><td><b>" + stat + "</b></td></tr>\n"
     s += "<tr><td><b>Current:</b></td><td>" + str(channel.current) + " mA</td></tr>\n"
-    #s += "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
-    #s += "<tr><td><b>Temperature:</b></td><td>" + error(str(float(channel.temperature)/10.0),channel.temperature > 300) + " degrees C</td></tr>\n"
+    if hasattr(channel, 'capacity'):
+        s += "<tr><td><b>Capacity:</b></td><td>" + str(channel.capacity) + " mAh</td></tr>\n"
+    if hasattr(channel, 'temperature'):
+        s += "<tr><td><b>Temperature:</b></td><td>" + error(str(float(channel.temperature)/10.0),channel.temperature > 300) + " degrees C</td></tr>\n"
     s += "<tr><td><b>Cells:</b></td><td>"
-    for i in range(0,8):
+    cells = channel.battery.cells if channel.battery != None else 8
+    for i in range(0,cells):
         s += str(float(channel.cells[i])/1000.0) + "V, "
     s += "</td></tr></table>\n"
     return s

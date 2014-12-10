@@ -4,6 +4,7 @@ import http.client
 import threading
 import time
 import _thread
+import led
 
 def make_request(channel):
     req = "/charger.php"
@@ -12,7 +13,8 @@ def make_request(channel):
     req += "&status=" + channel.status     # discharging, charging en ready
     req += "&voltage=" +str(channel.voltage)
     req += "&current=" + str(channel.current)
-    req += "&temperature="+ str(channel.temperature)
+    if hasattr(channel, 'temperature'):
+        req += "&temperature="+ str(channel.temperature)
     for i in range(0, channel.battery.cells):
         req += "&volt_cell_" + str(i+1) + "=" + str(channel.cells[i])
     return req
@@ -32,6 +34,8 @@ def upload_server(chargers, address, timeout, debug):
             print("Upload: Lock Error")
             lock.release()
 
+        if len(req) > 0:
+            led.toggle(led.RED)
         for r in req:
             try:
                 if debug:
