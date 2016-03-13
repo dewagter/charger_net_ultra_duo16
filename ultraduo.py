@@ -11,6 +11,7 @@ class UltraDuoChannel(charger.Channel):
     #010B00	-> charging FAST
     #010700	-> charging Store 3.90
     #010900	-> charging CV Link
+    #030001	-> pause: wait before discharge
     #050200	-> ready
     #050400	-> overtemperature
     #070000	-> pure balancing
@@ -30,6 +31,8 @@ class UltraDuoChannel(charger.Channel):
                 ret = 'charging'
             elif (s == '2'):
                 ret = 'discharging'
+            elif (s == '3'):
+                ret = 'waiting'
             elif (s == '6'):
                 ret = 'error'
             elif (s == '7'):
